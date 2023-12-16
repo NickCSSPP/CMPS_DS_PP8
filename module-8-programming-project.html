@@ -1,0 +1,193 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>CMPS 260: Module 8 Programming Project</title>
+<style>* { font-family: monospace; }</style>
+<script>
+
+// NOTE: You must implement the data structures using the prototype approach.
+//       This is not what the book uses, so you have to convert it.
+//       See also: https://it.pointpark.edu/tutorials/no-prototype-vs-prototype/
+
+// NOTE: Please review the following links regularly:
+//       https://it.pointpark.edu/tutorials/arrays-vs-objects/
+//       https://it.pointpark.edu/tutorials/no-prototype-vs-prototype/
+//       https://it.pointpark.edu/tutorials/implementation-vs-interface/
+
+
+
+//---------//
+// Project //
+//---------//
+console.log("Project");
+
+// 1. What is the worst case complexity of the following function?
+
+function hasDuplicates(arr) {
+  for (var i = 0; i < arr.length; i++) {
+    for (var j = 0; j < arr.length; j++) {
+      if (i !== j && arr[i] === arr[j]) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+// The worst case is O(n^2) as it compares each element to every other element
+// in the array as a nested loop.
+
+
+// 2. Implement a faster version of the same function and analyze the
+//    complexity of this approach.
+
+function hasDuplicatesFast(arr) {
+  // todo
+  var set = new Set();
+
+  for (var i = 0; i < arr.length; i++) {
+    if (set.has(arr[i])) {
+      return true;
+    }
+    set.add(arr[i]);
+  }
+  return false;
+}
+
+// The worst case is O(n) as it only iterates through the array once and
+// uses a set to check if the element has already been seen, rather than
+// using a nested loop.
+
+
+// 3. The travelling salesman problem is a another classic problem and we are
+//    going to solve it using a greedy algorithm. Before starting, please read
+//    through the article on Wikipedia:
+//      https://en.wikipedia.org/wiki/Travelling_salesman_problem
+//    Then implement the following:
+//    (a) Create a graph that represents the example symmetric TSP problem on
+//        the Wikipedia page.
+
+
+// I used the numbers from the example image Symmetric TSP with four cities.
+
+var graph = {
+  'A': { 'B': 20, 'C': 42, 'D': 35 }, 
+  'B': { 'A': 20, 'C': 30, 'D': 34 },
+  'C': { 'A': 42, 'B': 30, 'D': 12 },
+  'D': { 'A': 35, 'B': 34, 'C': 12 }
+}
+
+//    (b) Implement a greedy search that finds the shortest path. You should
+//        have the following steps: (1) pick node A as the starting position,
+//        (2) pick the closest neighbor that has not been visited as the next
+//        city to visit, (3) continue this process until returning to A,
+//        (4) print the final length of the path and also the sequence of
+//        the cities.
+
+function greedyTSP(graph) {
+  var visited = new Set();
+  var path = [];
+  var current = 'A';
+  var total = 0;
+  var cities = Object.keys(graph);
+
+  while (visited.size < cities.length) {
+    path.push(current);
+    visited.add(current);
+    var min = Infinity;
+    var next = null;
+
+    for (var neighbor in graph[current]) {
+      if (graph[current][neighbor] < min && !visited.has(neighbor)) {
+        min = graph[current][neighbor];
+        next = neighbor;
+      }
+    }
+    if (next !== null) {
+      current = next;
+      total += min;
+    } else {
+      for (var city of cities) {
+        if (!visited.has(city)) {
+          next = city;
+          break;
+        }
+      }
+      if (next !== null) {
+        total += graph[current][next];
+        current = next;
+      } else {
+        total += graph[current]['A'];
+        current = 'A';
+      }
+    }
+  }
+  path.push('A');
+  console.log('Total Distance: ' + total);
+  console.log('Path: ' + path.join(' -> '));
+}
+
+//    (c) Check your results, do they make sense? Is is the optimal solution?
+
+greedyTSP(graph);
+
+// This looks like the optimal solution as it follows the shortest path between
+// each city and then returns to the starting city. The total distance in this
+// case is 97.
+
+// 4. Solve https://csacademy.com/contest/interview-archive/task/intersecting-rectangles/
+//    What is the runtime complexity of your solution?
+//    HINT: Try to break down the problems into smaller steps. For example,
+//          find a convenient way to represent rectangles and define a function
+//          that tests whether one rectangle is inside another. Then test your
+//          code on just two rectangles first to make sure it works.
+
+function intersectingRectangles(rectangles) {
+  let count = 0;
+
+  for (let i = 0; i < rectangles.length; i++) {
+    for (let j = i + 1; j < rectangles.length; j++) {
+      if (doRectanglesIntersect(...rectangles[i], ...rectangles[j])) {
+        count++;
+      }
+    }
+  }
+
+  if (count === 0) {
+    return "There are no intersections.";
+  } else {
+    return `There are ${count} intersections.`;
+  }
+}
+
+function doRectanglesIntersect(x1, y1, w1, h1, x2, y2, w2, h2) {
+  return !(x1 + w1 < x2 || x2 + w2 < x1 || y1 + h1 < y2 || y2 + h2 < y1);
+}
+
+
+var rectangleTest = [
+  [1, 1, 7, 10],  
+  [3, 5, 10, 8]    
+];
+console.log(intersectingRectangles(rectangleTest));
+
+var rectangleTest2 = [
+  [1, 1, 5, 5],   
+  [3, 2, 6, 4],   
+  [4, 8, 8, 10],
+  [3, 9, 7, 10]    
+];
+console.log(intersectingRectangles(rectangleTest2));
+
+// The runtime complexity of this solution is O(n^2) as it iterates through
+// each rectangle and then compares it to every other rectangle with a
+// nested loop, similar to the hasDuplicates function above.
+
+
+</script>
+</head>
+<body>
+  See console!
+</body>
+</html>
